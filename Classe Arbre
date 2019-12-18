@@ -1,0 +1,681 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CompressionHuffman
+{
+    public static class Arbre
+    {
+
+        //private static Noeud[] Tnooeud;
+        //private static Liason[] TLiason;
+        //private static Lettre[] TLettre;
+
+        /// <summary>
+        /// la fonction genererArbre est tres importante dans ceux programer. c'est elle qui va generer les differents 
+        /// noeud et liaison que comporte un arbre. un arbre est composé de n noeud initiaux, n-1 noeuds secondaire et 2n-2 liaison
+        /// </summary>
+        /// <param name="TLettre"></param>
+        public static void genererArbre(ref Lettre[] TLettre, ref Noeud[] TNoeudInitial, ref Noeud[] TNoeudSecondaire)
+        {
+
+            int taille = TNoeudInitial.Length; // taille est la taille du tableau de noeud initiale
+
+            // creation de la copie de la table noeud initiale
+            Noeud[] TNIcopie;
+            TNIcopie = new Noeud[taille ];
+            
+            //creation des noeuds secondaires
+            
+            TNoeudSecondaire=new Noeud[taille - 1];
+            for (int i = 0; i < TNoeudSecondaire.Length; i++)
+            {
+                TNoeudSecondaire[i] = new Noeud();
+            }
+
+            Noeud[] TNoeudSecondaireOrigninal;
+            TNoeudSecondaireOrigninal = new Noeud[taille - 1];
+            for (int i = 0; i < TNoeudSecondaireOrigninal.Length; i++)
+            {
+                TNoeudSecondaireOrigninal[i] = new Noeud();
+            }
+
+            //creation des liaisons;
+            Liason[] TLiaison;
+            TLiaison = new Liason[(2*taille) - 2];
+
+            //remplissage de la table TNIcpopie
+            for (int i = 0,c=taille; i < c; i++)
+            {
+                TNIcopie[i] = new Noeud();
+                TNIcopie[i] = TNoeudInitial[i];
+            }
+
+            //// #test affichage de TniCopie
+
+            Console.WriteLine("\n affichage de Tnicopie \n");
+            for (int i = 0, c = taille; i < c; i++)
+            {
+
+                Console.WriteLine(TNIcopie[i]);
+            }
+
+            //generation de l'arbre
+            //ici on va juste remplir le tableau TNoeudScecondaire avec les bonnes valeurs
+            Console.WriteLine("\n debut de la creation de l'arbre \n");
+            Noeud min1 = new Noeud();
+            Noeud min2= new Noeud();
+            int indice1 = 0,indice2=0;
+            int position = 0;
+            int positionOriginal = 0;
+
+            // #Debut
+            while (positionOriginal<=TNoeudSecondaireOrigninal.Length-1)
+            {
+                    //recherdche du premier plus petit element
+                #region Recherche du premier plus petit element
+  /*****************************************************************************************************************/                  
+                //recherche dans le premier tableau (TNIcopie)
+                // #test  affichage de la taille de tniCopie
+                Console.WriteLine(TNIcopie.Length);
+                    if (TNIcopie.Length>0)
+                    {
+                        min1 = TNIcopie[TNIcopie.Length - 1];
+                        Console.WriteLine(min1.ToString() + " Meckde");
+
+                        indice1 = 0;
+                        for (int i = TNIcopie.Length - 1; i >= 0; i--)
+                        {
+
+                            if (min1.Val > TNIcopie[i].Val)
+                            {
+                                min1 = TNIcopie[i];
+                                for (int x = 0; x < TNoeudInitial.Length; x++)
+                                {
+                                    if (TNIcopie[i].Numero == TNoeudInitial[x].Numero)
+                                    {
+                                        TNoeudInitial[x].Position = "gauche";
+                                        min1=TNoeudInitial[x];
+                                        Console.WriteLine("cool gauche");
+                                    }
+                                }
+                                indice1 = i;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("pas cool gauche");
+                        min1 = TNoeudSecondaire[0];
+                        indice1 = TNIcopie.Length;
+                    }
+
+                //recherche dans le second tableau (TNoeudSecondaire)
+                for (int i = 0; i < TNoeudSecondaire.Length; i++)
+                {
+                    if ((min1.Val > TNoeudSecondaire[i].Val) && TNoeudSecondaire[i].Val != 0)
+                    {
+                        min1 = TNoeudSecondaire[i];
+                        for (int x = 0; x < TNoeudSecondaireOrigninal.Length; x++)
+                        {
+                            if (TNoeudSecondaire[i].Numero==TNoeudSecondaireOrigninal[x].Numero)
+                            {
+                                TNoeudSecondaireOrigninal[x].Position = "gauche";
+                                Console.WriteLine("cool gauche");
+                            }
+                        }
+                        indice1 = i + TNIcopie.Length;
+                    }
+                }
+
+                // #test affichage de min1
+                Console.WriteLine(min1 + "yoooooye 1");
+
+                if (0<=indice1 && indice1<=TNIcopie.Length-1)//si l'indice1 est compris entre le premier et le dernier indice de TNIcopie (le premier tableau)
+                {
+                    //on suprime l'element correspondant a cet indice dans le premier tableau (TNIcopie)
+                    for (int i = min1.Numero; i < TNIcopie.Length-1; i++)
+                    {
+                        TNIcopie[i] = TNIcopie[i + 1];
+                    }
+                    Array.Resize(ref TNIcopie, TNIcopie.Length-1);
+                }
+                else//on suprime l'element correspondant a cet indice dans le second tableau  (TNoeudSecondaire)
+                {
+                    //for (int v = min1.Numero; v < TNoeudSecondaire.Length - 1; v++)
+                    //{
+                    //    TNoeudSecondaire[v] = TNoeudSecondaire[v + 1];
+                    //}
+                    for (int v = 0; v < TNoeudSecondaire.Length; v++)
+                    {
+
+                        if (TNoeudSecondaire[v].Numero == min1.Numero)
+                        {
+                            break;
+                        }
+
+                    }
+                    for (int v = 0; v < TNoeudSecondaire.Length - 1; v++)
+                    {
+                        Console.WriteLine("  ++++ je d'accorise   \n");
+                        TNoeudSecondaire[v] = TNoeudSecondaire[v + 1];
+                    }
+
+
+
+                    Array.Resize(ref TNoeudSecondaire, TNoeudSecondaire.Length - 1);
+                    position -= 1;
+
+                }
+                #endregion
+
+/***************************************************************************************************************************************/
+                #region Recherche du second plus petit element
+                ///// #test
+                Console.WriteLine("wayaye " + TNIcopie.Length + " " +(TNIcopie.Length - 1));
+                //Console.ReadKey();
+                if (TNIcopie.Length>0)
+                {
+                    min2 = TNIcopie[TNIcopie.Length - 1]; 
+                
+
+                indice2 = 0;
+                //recherche dans le premier tableau (TNIcopie)
+                for (int i = TNIcopie.Length - 1; i >= 0; i--)
+                {
+
+                    if (min2.Val > TNIcopie[i].Val)
+                    {
+                        min2 = TNIcopie[i];
+                        for (int x = 0; x < TNoeudInitial.Length; x++)
+                        {
+                            if (TNIcopie[i].Numero == TNoeudInitial[x].Numero)
+                            {
+                                TNoeudInitial[x].Position = "droite";
+                                Console.WriteLine("cool droite");
+                            }
+                        }
+                        indice2 = i;
+                    }
+                }
+                }
+                else // si le premier tableau ne contient plus des valeurs
+                {
+                    Console.WriteLine("pas cool droite");
+                    min2 = TNoeudSecondaire[0];
+                    indice2 = TNIcopie.Length;
+                }
+
+                //recherche dans le second tableau (TNoeudSecondaire)
+                for (int i = 0; i < TNoeudSecondaire.Length; i++)
+                {
+
+                    if ((min2.Val > TNoeudSecondaire[i].Val) && TNoeudSecondaire[i].Val != 0)
+                    {
+                        min2 = TNoeudSecondaire[i];
+                        for (int x = 0; x < TNoeudSecondaireOrigninal.Length; x++)
+                        {
+                            if (TNoeudSecondaire[i].Numero == TNoeudSecondaireOrigninal[x].Numero)
+                            {
+                                TNoeudSecondaireOrigninal[x].Position = "droite";
+                                Console.WriteLine("cool droite");
+                            }
+                        }
+                        indice2 = i + TNIcopie.Length;
+                    }
+                }
+
+                if (0 <= indice2 && indice2 <= TNIcopie.Length - 1)//si l'indice2 est compris entre le premier et le dernier indice de TNIcopie (le premier tableau)
+                {
+                    //on suprime l'element correspondant a cet indice dans le premier tableau (TNIcopie)
+                    for (int i = min2.Numero; i < TNIcopie.Length-1; i++)
+                    {
+                        TNIcopie[i] = TNIcopie[i + 1];
+                    }
+                    Array.Resize(ref TNIcopie, TNIcopie.Length-1);
+                }
+                else//on suprime l'element correspondant a cet indice dans le second tableau  (TNoeudSecondaire)
+                {
+                    Console.WriteLine(min2.Numero + "  malchance   \n");
+                    for (int v = 0; v < TNoeudSecondaire.Length; v++)
+                    {
+                        
+                        if (TNoeudSecondaire[v].Numero==min2.Numero)
+                        {
+                            break;
+                        }
+                        
+                    }
+                    for (int v = 0; v < TNoeudSecondaire.Length -1 ; v++)
+                    {
+                        Console.WriteLine("  ++++ je d'accorise   \n");
+                        TNoeudSecondaire[v] = TNoeudSecondaire[v + 1];
+                    }
+                    Array.Resize(ref TNoeudSecondaire, TNoeudSecondaire.Length - 1);
+                    position -= 1;
+
+                }
+                #endregion
+                // #test affichage de min2
+                Console.WriteLine(min2 + "yoooooye 2");
+
+                //creation du noeud et des liaisons correspondantes
+               
+                    TNoeudSecondaire[position] = new Noeud(min1.Val + min2.Val, min1.Numero, min2.Numero, positionOriginal+taille, ""); // creation du noeud
+                    Console.WriteLine(TNoeudSecondaire[position] + "yoooooye result");
+                    TNoeudSecondaireOrigninal[positionOriginal] = TNoeudSecondaire[position];
+                    Console.WriteLine(TNoeudSecondaireOrigninal[positionOriginal] + "yoooooye result original");
+                    TLiaison[2 * positionOriginal] = new Liason(2 * positionOriginal, "gauche", min1.Numero, TNoeudSecondaireOrigninal[positionOriginal].Numero, 0); // creation de la liason gauche
+                    TLiaison[(2 * positionOriginal) + 1] = new Liason((2 * positionOriginal) + 1, "droite", min2.Numero, TNoeudSecondaireOrigninal[positionOriginal].Numero, 1); // creation de la liaison droite
+
+                
+                position += 1;
+                positionOriginal += 1;
+            }
+
+
+            TNoeudSecondaire = TNoeudSecondaireOrigninal;
+
+            ///// #test 
+
+            //affichage des noeuds secondaire
+            Console.WriteLine("\n affichage des noeuds secondaire \n");
+            for (int i = 0; i < TNoeudSecondaire.Length; i++)
+            {
+                Console.WriteLine(TNoeudSecondaire[i].ToString());
+            }
+
+            //affichage des liaisons
+            Console.WriteLine("\n affichage des liaisons \n");
+            for (int i = 0; i < TLiaison.Length; i++)
+            {
+                Console.WriteLine(TLiaison[i].ToString());
+            }
+            Console.ReadKey();
+            fabricationDesChemin0101(TLettre,TNoeudInitial,TNoeudSecondaire,TLiaison);
+        }
+
+
+        private static void fabricationDesChemin0101(Lettre[] TLettre, Noeud[] TNoeudInitial, Noeud[] tNoeudSecondaire, Liason[] Tliaison)
+        {
+            int j = 0, k = 0;
+             int x = 0;
+             int max = tNoeudSecondaire[0].Val;
+             int taille = TNoeudInitial.Length;
+
+              // selection de la plus grande valeur du tableau de noeud secondaire (elle correspond au noeud racine)
+             for (int i = 1; i < tNoeudSecondaire.Length; i++)
+             {
+                 if (max<tNoeudSecondaire[i].Val)
+                 {
+                     max = tNoeudSecondaire[i].Val;
+                 }
+             }
+             Console.Clear();
+             
+
+            for (int i = 0; i < TLettre.Length; i++)
+            {
+                j = TLettre[i].Numero;
+                k = 0;
+
+                //selection d'un noeud secondaire qui n'est pas le noeud racine (le dernier noeud)
+                for (int v = 0; v < tNoeudSecondaire.Length; v++)
+                {
+                    if (tNoeudSecondaire[v].Val < max)
+                    {
+                        x = v;
+                        break;
+                    }
+                }
+                
+                while (tNoeudSecondaire[x].Val<max)
+                {
+                    //recherche de la liaison
+                    Console.WriteLine("index actuelle : " + x);
+                    //Console.ReadKey();
+                    for (k = 0; k < Tliaison.Length; k++)
+                    {
+                        if (j == Tliaison[k].IndiceNoeudInitial)
+                        {//si l´indice de ce noeud est egale a l´indice du noeud incial de cette liaison
+                            //ajout dans le tableau de 01010101
+                            Console.WriteLine("nouvelle taille : " + (TLettre[i].tabCryptage.Length + 1));
+                            //Console.ReadKey();
+                            Array.Resize(ref TLettre[i].tabCryptage, TLettre[i].tabCryptage.Length + 1);
+                            //for (int z1 = 0; z1 < TLettre[i].tabCryptage.Length-1; z1++)
+                            //{
+                            //    TLettre[i].tabCryptage[z1+1] = TLettre[i].tabCryptage[z1];
+                            //}
+                            //TLettre[i].tabCryptage[0] = Tliaison[k].Valeur;
+
+                            TLettre[i].tabCryptage[TLettre[i].tabCryptage.Length - 1] = Tliaison[k].Valeur;
+
+                            break;
+                        }
+                    }
+
+                    //recherche du noeud finale correspondant
+                    for (int v = 0; v < tNoeudSecondaire.Length; v++)
+                    {
+                        if (Tliaison[k].IndiceNoeudFinal==tNoeudSecondaire[v].Numero)//si l'indice de ce noeud est egale a l'indice du noeud finale de cette liason 
+                        {
+                            j = tNoeudSecondaire[v].Numero;
+                            x = v;
+                            break;
+                        }
+                    }
+
+                    Console.WriteLine("index actuelle : " + x);
+                    //Console.ReadKey();
+                    
+                }
+                Array.Reverse(TLettre[i].tabCryptage);
+                Console.WriteLine("et de " + i);
+               
+            }
+            afficherChemin(TLettre);
+        }
+
+
+        private static void afficherChemin(Lettre[] Tlettre) {
+            for (int i = 0; i < Tlettre.Length; i++)
+            {
+                Console.Write(Tlettre[i].Valeur + " : ");
+                for (int j = 0; j < Tlettre[i].tabCryptage.Length; j++)
+                {
+                    Console.Write(Tlettre[i].tabCryptage[j].ToString() + " ");
+
+                }
+                Console.WriteLine();
+            }
+        }
+
+        #region generation de la table de Frequence
+
+        public static void genererTableFrequence(string Texte,ref string[] tvaleur,ref int[] tFrequence)
+        {
+            int n = 0;
+            char[] Tchar = Texte.ToArray();
+            tvaleur = new string[0];
+            tFrequence = new int[0];
+            for (int i = 0; i < Tchar.Length; i++)
+            {
+                if (!estDans(tvaleur, Tchar[i].ToString()))
+                {
+                    n = 1;
+
+                    for (int j = i + 1; j < Tchar.Length; j++)
+                    {
+                        if (Tchar[i] == Tchar[j])
+                        {
+                            n += 1;
+                        }
+                    }
+                    Array.Resize(ref tvaleur, tvaleur.Length + 1);
+                    tvaleur[tvaleur.Length - 1] = Tchar[i].ToString();
+                    Array.Resize(ref tFrequence, tFrequence.Length + 1);
+                    tFrequence[tFrequence.Length - 1] = n;
+
+                }
+            }
+
+            classer(tvaleur, tFrequence);
+
+            for (int i = 0; i < tvaleur.Length; i++)
+            {
+                Console.WriteLine(tvaleur[i] + "   " + tFrequence[i]);
+            }
+
+            Console.WriteLine("  \n\n Cool \n\n ");
+            Array.Reverse(tvaleur);
+            Array.Reverse(tFrequence);
+
+
+            for (int i = 0; i < tvaleur.Length; i++)
+            {
+                Console.WriteLine(tvaleur[i] + "   " + tFrequence[i]);
+            }
+
+            
+        }
+
+        private static bool estDans(string[] T, string a)
+        {
+            bool b = false;
+            for (int i = 0; i < T.Length; i++)
+            {
+                if (T[i] == a)
+                {
+                    b = true;
+                    break;
+                }
+            }
+            return b;
+        }
+
+        private static void classer(string[] tValeur, int[] tFrequence)
+        {
+            int taille = tFrequence.Length;
+            int i = 0, j = 0, f = 0, c = 0;
+            string g = "";
+            if (tFrequence[1] < tFrequence[0])
+            {
+                permuter(ref tFrequence[0], ref tFrequence[1]);
+                permuter2(ref tValeur[0], ref tValeur[1]);
+            }
+
+            for (i = 2; i < taille; i++)
+            {
+                for (j = 0; j < i; j++)
+                {
+                    if (tFrequence[j] > tFrequence[i])
+                    {
+                        c = tFrequence[i];
+                        for (f = i - 1; f >= j; f--)
+                        {
+                            tFrequence[f + 1] = tFrequence[f];
+                        }
+                        tFrequence[j] = c;
+
+                        g = tValeur[i];
+                        for (f = i - 1; f >= j; f--)
+                        {
+                            tValeur[f + 1] = tValeur[f];
+                        }
+                        tValeur[j] = g;
+                    }
+                }
+            }
+
+        }
+
+        private static void permuter(ref int a, ref int b)
+        {
+            a = a + b;
+            b = a - b;
+            a = a - b;
+        }
+        private static void permuter2(ref string a, ref string b)
+        {
+            string c = "";
+            c = a;
+            a = b;
+            b = c;
+        }
+
+        
+        #endregion
+
+        #region creation du tableau de lettre
+        public static void genererTlettre(ref Lettre[] Tlettre,ref string[] Tvaleur) {
+            Tlettre=new Lettre[Tvaleur.Length];
+            for (int i = 0; i < Tvaleur.Length; i++)
+            {
+                Tlettre[i]=new Lettre();
+                Tlettre[i].Numero = i;
+                Tlettre[i].Valeur=Tvaleur[i];
+            }
+        }
+        #endregion
+        #region creation du tableau de noeud initial
+        public static void genererTNoeudInitial(ref Noeud[] TNoeudInitial,ref int[] Tfrequence) {
+            TNoeudInitial = new Noeud[Tfrequence.Length];
+            Console.WriteLine(Tfrequence.Length.ToString() + "Meckde");
+            for (int i = 0; i < Tfrequence.Length; i++)
+            {
+                TNoeudInitial[i] = new Noeud();
+                TNoeudInitial[i].Numero = i;
+                TNoeudInitial[i].Val = Tfrequence[i];
+                TNoeudInitial[i].Nbgauche = -100 -10*i;
+                TNoeudInitial[i].Nbdroite = -100 -11*i;
+            }
+        }
+        #endregion
+
+        #region Tatchum Code
+        public static string[,] frequenceF(Lettre[] tab)
+        {
+            string[,] freq = new string[tab.Length, 2];
+            string inter;
+
+            for (int i = 0; i < tab.Length; i++)
+            {
+                inter = "";
+                freq[i, 0] = tab[i].Valeur;
+
+
+                for (int j = 0; j < tab[i].tabCryptage.Length; j++)
+                {
+                    inter = inter + (char)tab[i].tabCryptage[j];
+                }
+                freq[i, 1] = inter;
+            }
+            return freq;
+
+        }
+
+        public static void frequence2(Lettre[] Tlettre,ref string[] Tbit,ref string[] tlettreNormal) {
+            int i = 0;
+            string valeur="";
+            Tbit = new string[Tlettre.Length];
+            tlettreNormal = new string[Tlettre.Length];
+            foreach (var lettre in Tlettre)
+            {
+                valeur = "";
+                for (int j = 0; j < lettre.tabCryptage.Length; j++)
+                {
+                    valeur += lettre.tabCryptage[j];
+                }
+                Console.WriteLine(valeur);
+                //Console.ReadKey();
+                Tbit[i] = valeur;
+                tlettreNormal[i] = lettre.Valeur;
+                i += 1;
+            }
+        }
+
+
+        public static string[] compresionn(string[] data, string[,] freq)
+        {
+            string[] compr = new string[data.Length];
+
+            Console.WriteLine("freq : " + freq[0,0].Length + " " + freq[1,0].Length);
+            Console.WriteLine("data : " + data.Length);
+            Console.WriteLine("compr : " + compr.Length);
+            Console.ReadKey();
+            for (int i = 0; i < data.Length; i++)
+            {
+                for (int j = 0; j < freq.Length/2; j++)
+                {
+                    if (data[i] == freq[j, 0])
+                    {
+                        // caractere
+                        // compr[0, i] = freq[j, 0];
+                        // code en binaire
+                        compr[i] = freq[j, 1];
+                    }
+                }
+            }
+
+            return compr;
+        }
+
+        public static string compression2(string texte,ref string[] TlettreNormal,ref string[] Tbit)
+        {
+            char[] tchar = texte.ToCharArray();
+            string compresser = "";
+
+            foreach (var lettre in tchar)
+            {
+                for (int j = 0; j < TlettreNormal.Length; j++)
+                {
+                    if (TlettreNormal[j]==lettre.ToString())
+                    {
+                        compresser+=Tbit[j];
+                        Console.WriteLine(Tbit[j]);
+                        //Console.ReadKey();
+                    }
+                    //Console.WriteLine(compresser);
+                }
+                
+            }
+            return compresser;
+        }
+
+
+        public static void AfficherTableauBit(string[] T) {
+            foreach (var valeur in T)
+            {
+                Console.Write(valeur.ToString());
+            }
+        }
+
+
+        public static string decompressionH(string[] compre, string[,] freq)
+        {
+            string data = "";
+            string inter = "";
+
+            for (int i = 0; i < compre.Length; i++)
+            {
+                inter = inter + compre[i];
+                for (int j = 0; j < freq.Length; j++)
+                {
+                    if (freq[j, 1] == inter)
+                    {
+                        data = data + freq[j, 0];
+                        inter = "";
+                    }
+                }
+            }
+
+            return data;
+
+        }
+
+
+        public static string decompression(string compresser,string[] tLettreNormal, string[] Tbit) {
+            char[] Tcompress= compresser.ToCharArray();
+            string texte = "";
+            string inter = "";
+
+            for (int i = 0; i < compresser.Length; i++)
+            {
+                inter += Tcompress[i];
+                for (int j = 0; j < tLettreNormal.Length; j++)
+                {
+                    if (Tbit[j]==inter)
+                    {
+                        texte +=tLettreNormal[j];
+                        inter = "";
+                    }
+                }
+            }
+            return texte;
+        }
+        #endregion
+
+    }
+}
